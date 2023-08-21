@@ -1,0 +1,9 @@
+PROS
+- Super simple to use
+- Runs on React (responsive: live zoom, hover effects, etc)
+- Natural dark mode
+- Has map chart for location access
+
+CONS
+- Lacks some popular graphs & charts (like pie charts, circle graphs or whatever)
+- 
