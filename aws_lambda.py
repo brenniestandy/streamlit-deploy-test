@@ -3,7 +3,6 @@ import json
 import pandas as pd
 
 async def fetch(fetchWhat):
-    
     # url = "http://localhost:3000/all"
     url = "https://ymfpmafvdp6lyzcd3dw3lhht3i0nvvgd.lambda-url.us-east-1.on.aws/"
     
