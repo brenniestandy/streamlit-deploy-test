@@ -30,9 +30,9 @@ with btn_col8:
     st.button("Refresh", type="primary")
 # Handle filtering
 result_data = asyncio.run(aws_lambda.fetch(option))
-
-media_types = pd.DataFrame(result_data[0][0])["MEDIATYPE"]
-creation_dates = pd.DataFrame(result_data[0][1])
+# print(result_data)
+media_types = result_data["MEDIATYPE"]
+# creation_dates = pd.DataFrame(result_data[0][1])
 
 total_accounts = len(media_types.values)
 st.title(f"MIT Access Analytics (Currently based on {total_accounts} {'Account Holders' if option == 'All' else option})")

@@ -15,4 +15,4 @@ async def fetch(fetchWhat):
         #     data_compilation.append(pd.DataFrame(item))
         
         # return pd.concat(data_compilation)
-        return data["body"]
+        return pd.DataFrame(data["body"][0])
