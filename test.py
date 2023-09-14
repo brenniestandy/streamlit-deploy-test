@@ -22,8 +22,6 @@ media_type_ref = {
     "503": "Android"
 }
 
-
-
 btn_col1, btn_col2, btn_col3, btn_col4, btn_col5, btn_col6, btn_col7, btn_col8,  = st.columns(8)
 with btn_col1:
     option = st.selectbox('Display:', ('All', 'Students', 'Affiliates', 'Employees'))
@@ -33,7 +31,10 @@ with btn_col8:
 # Handle filtering
 result_data = asyncio.run(aws_lambda.fetch(option))
 
-total_accounts = len(result_data.values)
+media_types = pd.DataFrame(result_data[0][0])["MEDIATYPE"]
+creation_dates = pd.DataFrame(result_data[0][1])
+
+total_accounts = len(media_types.values)
 st.title(f"MIT Access Analytics (Currently based on {total_accounts} {'Account Holders' if option == 'All' else option})")
 # st.title(f"MIT Access Analytics (Based on 1000 Account Holders)")
 st.text("")
@@ -45,8 +46,6 @@ type_storage = {
     "Types": ["Physical Card", "iPhone", "iWatch", "Android", "Other"],
     "Values": [0, 0, 0, 0, 0]
 }
-
-media_types = result_data["MEDIATYPE"]
 
 for item in media_types:
     if item in media_type_ref:
@@ -99,10 +98,26 @@ with b_col2:
     st.header(f"Mobile vs Physical (Total: {df_mobile_physical.values[0][1] + df_mobile_physical.values[1][1]})")
     st.plotly_chart(fig_mediatypes)
 
-# if st.button('Say hello'):
-#     st.write('Why hello theggggre')
-# else:
-#     st.write('Goodbye')
+# ====== No. of Credentials by Date (created?) ======
+
+# dates = {
+#     "Counts": [],
+#     "Dates": []
+# }
+
+# for index, row in creation_dates.iterrows():
+#     dates["Counts"].append(row['Count(KRB_NAME_CREATE_DATE)'])
+#     dates["Dates"].append(row['KRB_NAME_CREATE_DATE'])
+    
+
+# df_dates = pd.DataFrame(
+#     dates["Counts"],
+#     dates["Dates"],
+#     columns=["Total Devices per Date"]
+# )
+
+# st.header(f"No. of Credentials by Date Created")
+# st.line_chart(df_dates)
 
 # ====== Expirations ====== #
 
