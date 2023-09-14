@@ -34,7 +34,7 @@ with btn_col8:
 result_data = asyncio.run(aws_lambda.fetch(option))
 
 total_accounts = len(result_data.values)
-st.title(f"MIT Access Analytics (Based on {total_accounts} {'Account Holders' if option == 'All' else option})")
+st.title(f"MIT Access Analytics (Currently based on {total_accounts} {'Account Holders' if option == 'All' else option})")
 # st.title(f"MIT Access Analytics (Based on 1000 Account Holders)")
 st.text("")
 st.text("")
@@ -60,7 +60,7 @@ df_mediatypes = pd.DataFrame(type_storage)
 fig_mediatypes = px.pie(df_mediatypes, names="Types",
                         values="Values", hole=0.5)
 with a_col1:
-    st.header("Media Types")
+    st.header("Media Type Ratios")
     st.plotly_chart(fig_mediatypes)
 
 # ====== MEDIATYPES-BAR (all) ====== #
@@ -84,7 +84,7 @@ with b_col1:
         watch_phone["Types"],
         columns=["Totals"]
     )
-    st.header("iWatch vs iPhone")
+    st.header(f"iWatch vs iPhone (Total: {df_watch_phone.sum().sum()})")
     st.bar_chart(df_watch_phone)
 
 # ====== MEDIATYPES-BAR (mobile vs physical) ====== #
@@ -96,7 +96,7 @@ with b_col2:
     df_mobile_physical = pd.DataFrame(watch_phone)
     fig_mediatypes = px.pie(df_mobile_physical, names="Types",
                         values="Values")
-    st.header("Mobile vs Physical")
+    st.header(f"Mobile vs Physical (Total: {df_mobile_physical.values[0][1] + df_mobile_physical.values[1][1]})")
     st.plotly_chart(fig_mediatypes)
 
 # if st.button('Say hello'):
