@@ -3,6 +3,7 @@ import pandas as pd
 import plotly.express as px
 import aws_lambda
 import asyncio
+from datetime import datetime
 
 st.set_page_config(
     page_title="MIT Access Analytics",
@@ -28,7 +29,7 @@ with btn_col1:
 
 with btn_col8:
     st.button("Refresh", type="primary")
-# Handle filtering
+
 result_data = asyncio.run(aws_lambda.fetch(option))
 # print(result_data)
 media_types = result_data["MEDIATYPE"]
@@ -99,25 +100,98 @@ with b_col2:
     st.plotly_chart(fig_mediatypes)
 
 # ====== No. of Credentials by Date (created?) ======
+if option == "All":
+    date_data = asyncio.run(aws_lambda.fetch("Dates"))
 
-# dates = {
-#     "Counts": [],
-#     "Dates": []
-# }
+    dates = {
+        "Counts": [],
+        "Dates": []
+    }
 
-# for index, row in creation_dates.iterrows():
-#     dates["Counts"].append(row['Count(KRB_NAME_CREATE_DATE)'])
-#     dates["Dates"].append(row['KRB_NAME_CREATE_DATE'])
-    
+    dbtn_col1, dbtn_col2, dbtn_col3, dbtn_col4 = st.columns(4)
 
-# df_dates = pd.DataFrame(
-#     dates["Counts"],
-#     dates["Dates"],
-#     columns=["Total Devices per Date"]
-# )
+    with dbtn_col1:
+        date_option = st.selectbox('Show:', ('Year by year', 'Month by month', 'Day by day'))
 
-# st.header(f"No. of Credentials by Date Created")
-# st.line_chart(df_dates)
+
+    year_totals = {}
+    month_totals = {}
+    day_totals = {}
+
+    for index, row in date_data.iterrows():
+        count = row['Count(KRB_NAME_CREATE_DATE)']
+        date = row['KRB_NAME_CREATE_DATE']
+        destructured_date = datetime.strptime(date, "%Y-%m-%dT%H:%M:%S.%fZ")
+        curr_year = str(destructured_date.year)
+        curr_month = str(destructured_date.month)
+        curr_day = destructured_date.day
+
+        # Skip the 27 October 2001 baby boom (16k records created on 1 day?) and also the 6 records created on 1989 (just for better display sake)
+        # if curr_year == 2001 and curr_month == 10 and curr_day == 27 or curr_year == 1989:
+        #     continue
+        
+        if date_option == "Year by year":
+            if curr_year not in year_totals:
+                year_totals[curr_year] = 0
+            else:
+                year_totals[curr_year] += count
+
+        if date_option == "Month by month":
+            if curr_month not in month_totals:
+                month_totals[curr_month] = 0
+            else:
+                month_totals[curr_month] += count
+
+        if date_option == "Day by day":
+            if curr_day not in day_totals:
+                day_totals[curr_day] = 0
+            else:
+                day_totals[curr_day] += count
+            
+
+    if date_option == "Year by year":
+        for year in year_totals:
+            dates["Counts"].append(year_totals[year])
+            dates["Dates"].append(year)
+
+    if date_option == "Month by month":
+        month_ref = {
+            "1": "January",
+            "2": "February",
+            "3": "March",
+            "4": "April",
+            "5": "May",
+            "6": "June",
+            "7": "July",
+            "8": "August",
+            "9": "September",
+            "10": "October",
+            "11": "November",
+            "12": "December"
+        }
+        for month in month_totals:
+            dates["Counts"].append(month_totals[month])
+            dates["Dates"].append(month_ref[month])
+        
+    if date_option == "Day by day":
+        for day in day_totals:
+            dates["Counts"].append(day_totals[day])
+            dates["Dates"].append(day)
+
+    df_dates = pd.DataFrame(
+        dates["Counts"],
+        dates["Dates"],
+        columns=["Total Devices per Date"]
+    )
+
+    date_text_ref = {
+        'Year by year': "Year",
+        'Month by month': "Month",
+        'Day by day': "Day of the month"
+    }
+
+    st.header(f"No. of Credentials Created by {date_text_ref[date_option]} (Work in progress)")
+    st.line_chart(df_dates)
 
 # ====== Expirations ====== #
 
